@@ -33,8 +33,7 @@ const verifyToken = async (req, res, next) => {
     next()
   })
 }
-const uri = `mongodb+srv://stayVista:mwiNOzDXOB0Xomuv@cluster0.nkafzub.mongodb.net/?retryWrites=true&w=majority`
-const client = new MongoClient(uri, {
+const client = new MongoClient(process.env.DB_uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
