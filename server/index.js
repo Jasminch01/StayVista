@@ -48,7 +48,7 @@ async function run() {
       const user = req.body
       console.log('I need a new jwt', user)
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '365d',
+        expiresIn: '1h',
       })
       res
         .cookie('token', token, {
