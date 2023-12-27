@@ -3,7 +3,7 @@ const app = express()
 require('dotenv').config()
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const { MongoClient, ServerApiVersion } = require('mongodb')
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const jwt = require('jsonwebtoken')
 const morgan = require('morgan')
 const port = process.env.PORT || 5000
@@ -20,7 +20,7 @@ app.use(cookieParser())
 app.use(morgan('dev'))
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token
-  console.log(token)
+
   if (!token) {
     return res.status(401).send({ message: 'unauthorized access' })
   }
@@ -42,7 +42,8 @@ const client = new MongoClient(process.env.DB_uri, {
 })
 async function run() {
   try {
-    const usersCollection = client.db('stayVista').collection('userCollection')
+    const usersCollection = client.db('stayVista').collection('userCollection');
+    const roomCollection = client.db('stayVista').collection('roomCollection')
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -59,6 +60,20 @@ async function run() {
         .send({ success: true })
     })
 
+    //get all rooms
+
+    app.get('/rooms', async(req, res) => {
+      const result = await roomCollection.find().toArray()
+      res.send(result)
+    })
+
+    //get single room
+    app.get('/room/:id', async(req, res) => {
+      const id = req.params.id
+      const result = await roomCollection.findOne({_id : new ObjectId(id)})
+      res.send(result)
+    })
+
     // Logout
     app.get('/logout', async (req, res) => {
       try {
@@ -69,7 +84,6 @@ async function run() {
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
           })
           .send({ success: true })
-        console.log('Logout successful')
       } catch (err) {
         res.status(500).send(err)
       }
@@ -82,7 +96,7 @@ async function run() {
       const query = { email: email }
       const options = { upsert: true }
       const isExist = await usersCollection.findOne(query)
-      console.log('User found?----->', isExist)
+      // console.log('User found?----->', isExist)
       if (isExist) return res.send(isExist)
       const result = await usersCollection.updateOne(
         query,

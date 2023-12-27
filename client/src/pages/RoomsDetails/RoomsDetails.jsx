@@ -1,28 +1,30 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+// import { useParams } from "react-router-dom";
+// import { useEffect, useState } from "react";
 import Container from "../../components/Shared/Container";
-import Loader from "../../components/Loading/Loading";
+// import Loader from "../../components/Loading/Loading";
 import Header from "../../components/RoomDetails/Header";
 import RoomInfo from "../../components/RoomDetails/RoomInfo";
 import RoomReservation from "../../components/RoomDetails/RoomReservation";
+import { useLoaderData } from "react-router-dom";
 
 const RoomsDetails = () => {
-  const { id } = useParams();
-  const [room, setRoom] = useState({});
-  const [loading, setLoading] = useState(false);
+  const room = useLoaderData()
+  // const { id } = useParams();
+  // const [room, setRoom] = useState({});
+  // const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-    fetch("/rooms.json")
-      .then((res) => res.json())
-      .then((data) => {
-        const singleRoom = data.find((room) => room._id === id);
-        setRoom(singleRoom);
-        setLoading(false);
-      });
-  }, [id]);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   fetch("/rooms.json")
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       const singleRoom = data.find((room) => room._id === id);
+  //       setRoom(singleRoom);
+  //       setLoading(false);
+  //     });
+  // }, [id]);
 
-  if (loading) return <Loader />;
+  // if (loading) return <Loader />;
   return (
     <Container>
       <div className="max-w-screen-lg mx-auto">
