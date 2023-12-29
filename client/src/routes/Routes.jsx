@@ -10,6 +10,9 @@ import { getSingleRooms } from "../api/rooms";
 import DeshboardLayout from "../layouts/DeshboardLayout";
 import AddRooms from "../pages/Deshboard/Host/AddRooms";
 import MyListing from "../pages/Deshboard/Host/MyListing";
+import HostRoute from "./HostRoute";
+import AdminRoute from "./AdminRoute";
+import ManageUsers from "../pages/Deshboard/Admin/ManageUsers";
 
 export const router = createBrowserRouter([
   {
@@ -37,15 +40,42 @@ export const router = createBrowserRouter([
   { path: "/signup", element: <SignUp /> },
   {
     path: "/dashboard",
-    element: <DeshboardLayout />,
+    element: (
+      <PrivateRoute>
+        {" "}
+        <DeshboardLayout />{" "}
+      </PrivateRoute>
+    ),
     children: [
       {
         path: "add-rooms",
-        element: <AddRooms />,
+        element: (
+          <PrivateRoute>
+            <HostRoute>
+              <AddRooms />
+            </HostRoute>
+          </PrivateRoute>
+        ),
       },
       {
-        path : 'my-listings',
-        element : <MyListing/>
+        path: "my-listings",
+        element: (
+          <PrivateRoute>
+            <HostRoute>
+              <MyListing />
+            </HostRoute>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "manage-users",
+        element: (
+          <PrivateRoute>
+            <AdminRoute>
+              <ManageUsers />
+            </AdminRoute>
+          </PrivateRoute>
+        ),
       },
     ],
   },

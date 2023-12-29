@@ -90,6 +90,13 @@ async function run() {
       res.send(result);
     });
 
+    //get user role
+    app.get('/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const result = await usersCollection.findOne({email});
+      res.send(result)
+    })
+
     // Logout
     app.get("/logout", async (req, res) => {
       try {
