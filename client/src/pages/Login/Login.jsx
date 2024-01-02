@@ -6,11 +6,10 @@ import { getToken, saveUser } from "../../api/auth";
 import toast from "react-hot-toast";
 
 const Login = () => {
-  const { signInWithGoogle, loading } = useAuth();
+  const { signInWithGoogle, loading, signIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation()
-  const from = location?.state?.from?.pathname || '/'
-
+  const location = useLocation();
+  const from = location?.state?.from?.pathname || "/";
 
   const handleGoogleSignIn = async () => {
     try {
@@ -30,6 +29,26 @@ const Login = () => {
       toast.error(err?.message);
     }
   };
+
+  //email password login
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
+    try {
+      //2. User Login
+      const result = await signIn(email, password)
+      //5. get token
+      await getToken(result?.user?.email)
+
+      navigate(from, { replace: true })
+      toast.success('Login Successful')
+    } catch (err) {
+      console.log(err)
+      toast.error(err?.message)
+    }
+  };
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
@@ -40,6 +59,7 @@ const Login = () => {
           </p>
         </div>
         <form
+          onSubmit={handleSignIn}
           noValidate=""
           action=""
           className="space-y-6 ng-untouched ng-pristine ng-valid"
@@ -99,7 +119,7 @@ const Login = () => {
           <div className="flex-1 h-px sm:w-16 dark:bg-gray-700"></div>
         </div>
         <div
-          onClick={ handleGoogleSignIn}
+          onClick={handleGoogleSignIn}
           className="flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer"
         >
           <FcGoogle size={32} />
