@@ -13,6 +13,8 @@ import MyListing from "../pages/Deshboard/Host/MyListing";
 import HostRoute from "./HostRoute";
 import AdminRoute from "./AdminRoute";
 import ManageUsers from "../pages/Deshboard/Admin/ManageUsers";
+import Profile from "../pages/Deshboard/Common/Profile";
+import Mybooking from "../pages/Deshboard/Guest/Mybooking";
 
 export const router = createBrowserRouter([
   {
@@ -74,6 +76,22 @@ export const router = createBrowserRouter([
             <AdminRoute>
               <ManageUsers />
             </AdminRoute>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <PrivateRoute>
+            <Profile></Profile>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "my-bookings",
+        element: (
+          <PrivateRoute>
+            <Mybooking></Mybooking>
           </PrivateRoute>
         ),
       },
