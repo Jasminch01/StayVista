@@ -88,7 +88,7 @@ const CheckOutForm = ({ bookingInfo, closeModal }) => {
         await updateRoomStauts(paymentInfo.roomId, true);
         const text = `Payment sucessfull ${paymentIntent.id}`;
         toast.success(text);
-        navigate("/deshboard/my-bookings");
+        navigate("/my-bookings");
       } catch (error) {
         console.log(error);
         toast.error(error.message);

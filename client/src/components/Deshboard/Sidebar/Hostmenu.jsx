@@ -1,6 +1,6 @@
 import MenuItem from "./MenuItem";
 import { BsFillHouseAddFill } from "react-icons/bs";
-import { MdHomeWork } from "react-icons/md";
+import { MdHomeWork, MdOutlineManageHistory } from "react-icons/md";
 
 const Hostmenu = () => {
   return (
@@ -13,6 +13,11 @@ const Hostmenu = () => {
       <MenuItem icon={MdHomeWork} label="My listings" address="my-listings" />
       <MenuItem
         icon={MdHomeWork}
+        label="Manage Bookings"
+        address="manage-bookings"
+      />
+      <MenuItem
+        icon={MdOutlineManageHistory}
         label="Manage Bookings"
         address="manage-bookings"
       />
