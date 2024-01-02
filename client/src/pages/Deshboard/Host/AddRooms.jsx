@@ -58,7 +58,7 @@ const AddRooms = () => {
       const data = await addRoom(roomData);
       setUploadButtonText("Uploaded");
       toast.success("Room Added successfully");
-      navigate("/deshboard/my-listings");
+      navigate("/my-listings");
       setLoading(false);
     } catch (error) {
       console.log(error);

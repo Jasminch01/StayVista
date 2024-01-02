@@ -1,12 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUsers } from "../../../api/auth";
-import UserDataRow from "../../../components/Deshboard/TableRows/UserDataRow";
+import useAuth from "../../../hooks/useAuth";
+import { getHostBookings } from "../../../api/bookings";
+import Loader from "../../../components/Shared/Loader";
+import TableRow from "../../../components/Deshboard/TableRows/TableRow";
 
-const ManageUsers = () => {
-  const { data: users = [], refetch } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => await getUsers(),
+const ManageBookings = () => {
+  const { user, loading } = useAuth();
+  const {
+    data: bookings = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["bookings", user?.email],
+    enabled: !loading,
+    queryFn: async () => await getHostBookings(user?.email),
   });
+  if (loading) {
+    <Loader />;
+  }
   return (
     <>
       <div className="container mx-auto px-4 sm:px-8">
@@ -20,21 +31,32 @@ const ManageUsers = () => {
                       scope="col"
                       className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
                     >
-                      Email
+                      Title
                     </th>
                     <th
                       scope="col"
                       className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
                     >
-                      Role
+                      Guest Info
                     </th>
                     <th
                       scope="col"
                       className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
                     >
-                      Status
+                      Price
                     </th>
-
+                    <th
+                      scope="col"
+                      className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
+                    >
+                      From
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
+                    >
+                      To
+                    </th>
                     <th
                       scope="col"
                       className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
@@ -44,9 +66,9 @@ const ManageUsers = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* User data table row */}
-                  {users.map((user) => (
-                    <UserDataRow  key={user._id} user={user} refetch={refetch}/>
+                  {/* Table row data */}
+                  {bookings.map((booking) => (
+                    <TableRow key={booking._id} booking={booking}></TableRow>
                   ))}
                 </tbody>
               </table>
@@ -58,4 +80,4 @@ const ManageUsers = () => {
   );
 };
 
-export default ManageUsers;
+export default ManageBookings;
