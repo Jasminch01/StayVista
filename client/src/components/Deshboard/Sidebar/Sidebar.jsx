@@ -70,7 +70,7 @@ const Sidebar = () => {
               <MenuItem
                 icon={BsGraphUp}
                 label="Statistics"
-                address="/dashboard"
+                address="/dashboard/statistics"
               />
               {/* Menu Items */}
               {role === "guest" && <GustMenu></GustMenu>}

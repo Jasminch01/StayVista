@@ -7,6 +7,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
 const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
+const nodemailer = require("nodemailer");
+const { error } = require("console");
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -34,6 +36,42 @@ const verifyToken = async (req, res, next) => {
     next();
   });
 };
+//send mail
+const sendMail = () => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.USER,
+      pass: process.env.APP_PASS,
+    },
+  });
+  // verify connection
+  transporter.verify((error, success) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("server is ready to send email ", success);
+    }
+  });
+
+  const mailBody = {
+    from: process.env.MAIL,
+    to: emailAddress,
+    subject: emailData?.subject,
+    html: `<p>${emailData?.message}</p>`,
+  };
+
+  transporter.sendMail(mailBody, (error, info) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+};
 const client = new MongoClient(process.env.DB_uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -47,24 +85,25 @@ async function run() {
     const roomCollection = client.db("stayVista").collection("roomCollection");
     //verify admin
     const verifyAdmin = async (req, res, next) => {
-      const user = req.user
-      console.log('user from verify admin', user)
-      const query = { email: user?.email }
-      const result = await usersCollection.findOne(query)
-      if (!result || result?.role !== 'admin')
-        return res.status(401).send({ message: 'unauthorized access' })
-      next()
-    }
+      const user = req.user;
+      console.log("user from verify admin", user?.email);
+      const query = { email: user?.email };
+      const result = await usersCollection.findOne(query);
+      console.log("result ", result);
+      if (!result || result?.role !== "admin")
+        return res.status(401).send({ message: "unauthorized access" });
+      next();
+    };
 
     // For hosts
     const verifyHost = async (req, res, next) => {
-      const user = req.user
-      const query = { email: user?.email }
-      const result = await usersCollection.findOne(query)
-      if (!result || result?.role !== 'host')
-        return res.status(401).send({ message: 'unauthorized access' })
-      next()
-    }
+      const user = req.user;
+      const query = { email: user?.email };
+      const result = await usersCollection.findOne(query);
+      if (!result || result?.role !== "host")
+        return res.status(401).send({ message: "unauthorized access" });
+      next();
+    };
 
     const bookingsCollection = client
       .db("stayVista")
@@ -186,9 +225,22 @@ async function run() {
 
     //save bookings data
     app.post("/bookings", verifyToken, async (req, res) => {
-      const bookings = req.body;
-      const result = await bookingsCollection.insertOne(bookings);
-      //send email
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
+      // Send Email.....
+      if (result.insertedId) {
+        // To guest
+        sendMail(booking.guest.email, {
+          subject: "Booking Successful!",
+          message: `Room Ready, chole ashen vai, apnar Transaction Id: ${booking.transactionId}`,
+        });
+
+        // To Host
+        sendMail(booking.host, {
+          subject: "Your room got booked!",
+          message: `Room theke vago. ${booking.guest.name} ashtese.....`,
+        });
+      }
       res.send(result);
     });
 
@@ -251,6 +303,33 @@ async function run() {
       };
       const result = await usersCollection.updateOne(query, updateDoc, options);
       res.send(result);
+    });
+
+    //admin stat data
+    app.get("/admin-stat", verifyToken, verifyAdmin, async (req, res) => {
+      const bookingsDetails = await bookingsCollection
+        .find({}, { projection: { date: 1, price: 1 } })
+        .toArray();
+      const userCount = await usersCollection.countDocuments();
+      const roomCount = await roomCollection.countDocuments();
+      const totalSale = bookingsDetails.reduce(
+        (sum, data) => sum + data.price,
+        0
+      );
+
+      const chartData = bookingsDetails.map((data) => {
+        const day = new Date(data.date).getDate();
+        const month = new Date(data.date).getMonth() + 1;
+        return [day + "/" + month, data.price];
+      });
+      chartData.unshift(["Day", "Sale"]);
+      res.send({
+        totalSale,
+        bookingCount: bookingsDetails.length,
+        userCount,
+        roomCount,
+        chartData,
+      });
     });
 
     // Send a ping to confirm a successful connection
